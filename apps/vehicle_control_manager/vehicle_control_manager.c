@@ -9,6 +9,8 @@
 #define DEFAULT_RAMP_DOWN_PCT_PER_SEC (160u)
 #define DEFAULT_MAX_UPDATE_DT_MS      (100u)
 
+static vehicle_control_manager_t mgr;
+
 static int16_t clamp_i16(int16_t value, int16_t min_value, int16_t max_value)
 {
     if (value < min_value) {
@@ -202,45 +204,44 @@ static bool command_has_timed_out(const vehicle_control_manager_t *mgr,
     return elapsed_ms > mgr->active_cmd.ttl_ms;
 }
 
-void vehicle_control_manager_init(vehicle_control_manager_t *mgr,
-                                  const vehicle_control_config_t *config)
-{
-    if (mgr == NULL) {
-        return;
-    }
+vehicle_control_manager_t * get_vehicle_manager_inst( void ) {
+    return &mgr;
+}
 
-    memset(mgr, 0, sizeof(*mgr));
+void vehicle_control_manager_init(const vehicle_control_config_t *config)
+{
+    memset(&mgr, 0, sizeof(vehicle_control_manager_t));
 
     if (config != NULL) {
-        mgr->config = *config;
+        mgr.config = *config;
     } else {
-        mgr->config.default_speed_limit_pct = DEFAULT_SPEED_LIMIT_PCT;
-        mgr->config.default_ttl_ms = DEFAULT_TTL_MS;
-        mgr->config.ramp_up_pct_per_sec = DEFAULT_RAMP_UP_PCT_PER_SEC;
-        mgr->config.ramp_down_pct_per_sec = DEFAULT_RAMP_DOWN_PCT_PER_SEC;
-        mgr->config.max_update_dt_ms = DEFAULT_MAX_UPDATE_DT_MS;
+        mgr.config.default_speed_limit_pct = DEFAULT_SPEED_LIMIT_PCT;
+        mgr.config.default_ttl_ms = DEFAULT_TTL_MS;
+        mgr.config.ramp_up_pct_per_sec = DEFAULT_RAMP_UP_PCT_PER_SEC;
+        mgr.config.ramp_down_pct_per_sec = DEFAULT_RAMP_DOWN_PCT_PER_SEC;
+        mgr.config.max_update_dt_ms = DEFAULT_MAX_UPDATE_DT_MS;
     }
 
-    mgr->config.default_speed_limit_pct =
-        clamp_u8(mgr->config.default_speed_limit_pct, 0u, 100u);
+    mgr.config.default_speed_limit_pct =
+        clamp_u8(mgr.config.default_speed_limit_pct, 0u, 100u);
 
-    if (mgr->config.default_ttl_ms == 0u) {
-        mgr->config.default_ttl_ms = DEFAULT_TTL_MS;
+    if (mgr.config.default_ttl_ms == 0u) {
+        mgr.config.default_ttl_ms = DEFAULT_TTL_MS;
     }
 
-    if (mgr->config.ramp_up_pct_per_sec == 0u) {
-        mgr->config.ramp_up_pct_per_sec = DEFAULT_RAMP_UP_PCT_PER_SEC;
+    if (mgr.config.ramp_up_pct_per_sec == 0u) {
+        mgr.config.ramp_up_pct_per_sec = DEFAULT_RAMP_UP_PCT_PER_SEC;
     }
 
-    if (mgr->config.ramp_down_pct_per_sec == 0u) {
-        mgr->config.ramp_down_pct_per_sec = DEFAULT_RAMP_DOWN_PCT_PER_SEC;
+    if (mgr.config.ramp_down_pct_per_sec == 0u) {
+        mgr.config.ramp_down_pct_per_sec = DEFAULT_RAMP_DOWN_PCT_PER_SEC;
     }
 
-    if (mgr->config.max_update_dt_ms == 0u) {
-        mgr->config.max_update_dt_ms = DEFAULT_MAX_UPDATE_DT_MS;
+    if (mgr.config.max_update_dt_ms == 0u) {
+        mgr.config.max_update_dt_ms = DEFAULT_MAX_UPDATE_DT_MS;
     }
 
-    mgr->current_speed_limit_pct = mgr->config.default_speed_limit_pct;
+    mgr.current_speed_limit_pct = mgr.config.default_speed_limit_pct;
 }
 
 void vehicle_control_manager_handle_command(vehicle_control_manager_t *mgr,

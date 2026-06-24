@@ -52,8 +52,9 @@ typedef struct {
     int16_t target_right_pct;
 } vehicle_control_manager_t;
 
-void vehicle_control_manager_init(vehicle_control_manager_t *mgr,
-                                  const vehicle_control_config_t *config);
+vehicle_control_manager_t * get_vehicle_manager_inst( void );
+
+void vehicle_control_manager_init(const vehicle_control_config_t *config);
 
 void vehicle_control_manager_handle_command(vehicle_control_manager_t *mgr,
                                             const vehicle_motion_command_t *cmd);
